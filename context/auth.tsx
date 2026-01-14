@@ -1,44 +1,71 @@
-// context/auth.tsx
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-interface User {
-  name: string;
-}
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import { authApi } from '../services/api'; // 1. 引入剛剛寫好的 API
 
 type AuthContextType = {
   user: User | null;
-  signIn: () => void;
+  session: Session | null;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ error: any; data: any }>;
   signOut: () => void;
+  loading: boolean; // 記得保持 boolean
 };
 
-// 定義 Context
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  signIn: () => {},
+  session: null,
+  signIn: async () => ({ error: null }),
+  signUp: async () => ({ error: null, data: null }),
   signOut: () => {},
+  loading: true,
 });
 
-// Provider 組件
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // 模擬：App 啟動時檢查一次 (只會在 App 剛開時跑一次，不會在切換頁面時跑)
   useEffect(() => {
-    // 這裡檢查 AsyncStorage 或 API
-    console.log("App 啟動：檢查登入狀態...");
-    // 假設沒登入
-    setUser(null); 
+    // 檢查 Session (這裡還是可以用 supabase 原生的，因為這是初始化邏輯)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const signIn = () => setUser({ name: "User" });
-  const signOut = () => setUser(null);
+  // --- 這裡開始改用 API Handler ---
+
+  const signIn = async (email: string, password: string) => {
+    // 呼叫 services/api.ts 裡的 authApi
+    const { error } = await authApi.signIn(email, password);
+    return { error };
+  };
+
+  const signUp = async (email: string, password: string, name: string) => {
+    // 呼叫 services/api.ts 裡的 authApi
+    const { data, error } = await authApi.signUp(email, password, name);
+    return { data, error };
+  };
+
+  const signOut = async () => {
+    await authApi.signOut();
+  };
 
   return (
-    <AuthContext.Provider value={{ user, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, signIn, signUp, signOut, loading }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-// Custom Hook 方便調用
 export const useAuth = () => useContext(AuthContext);

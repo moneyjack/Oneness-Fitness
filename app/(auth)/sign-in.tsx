@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Switch, KeyboardAvoidingView, 
 import { Icon } from 'react-native-paper';
 import { useRouter } from 'expo-router'; // 1. 引入 Router
 import { useAuth } from '../../context/auth'; // 2. 引入 Auth Context (假設路徑正確)
-
+import { SafeAreaView } from 'react-native-safe-area-context';
 export default function SignInScreen() {
   const router = useRouter();
   const { signIn } = useAuth(); // 使用全域登入方法
@@ -16,22 +16,29 @@ export default function SignInScreen() {
   // 判斷表單是否填寫完整
   const isFormValid = email.length > 0 && password.length > 0;
 
+  // 在 sign-in.tsx 裡...
+
   const handleSignIn = async () => {
     setLoading(true);
     try {
-      // 執行登入 (這裡會更新 Context 中的 user 狀態)
-      // 在真實情境中，您可能會在這裡呼叫 API: await api.login(email, password)
-      signIn(); 
+      // 修改這裡：傳入 email 和 password
+      const { error } = await signIn(email, password);
       
-      // 登入成功後，退回上一頁 (例如從 Profile 彈出的話就回到 Profile)
-      // 或者您也可以強制跳轉首頁: router.replace('/(main)/videos');
-      if (router.canGoBack()) {
-        router.back();
+      if (error) {
+        // 如果 Supabase 回傳錯誤 (例如密碼錯誤)
+        Alert.alert('Login Failed', error.message);
       } else {
-        router.replace('/(main)/videos');
+        // 登入成功
+        // 注意：因為 AuthContext 裡有監聽器，狀態會自動更新，
+        // 這裡只要負責跳轉頁面就好
+        if (router.canGoBack()) {
+          router.back();
+        } else {
+          router.replace('/(main)/videos');
+        }
       }
     } catch (error) {
-      Alert.alert('Login Failed', 'Please check your credentials');
+      Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
@@ -48,9 +55,10 @@ export default function SignInScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white">
       {/* 頂部 App Bar - 'X' 關閉按鈕 */}
       <View className="flex-row justify-end items-center px-4 py-4 border-b border-gray-100">
+        
         <TouchableOpacity onPress={handleClose} className="p-2">
           <Icon source="close" size={28} color="#333" /> 
         </TouchableOpacity>
@@ -113,8 +121,15 @@ export default function SignInScreen() {
         <TouchableOpacity className="mt-6 self-center">
           <Text className="text-primary text-base font-semibold">Reset password</Text>
         </TouchableOpacity>
-
+        {/* 新增：去註冊頁面的連結 */}
+        <View className="flex-row justify-center mt-8">
+          <Text className="text-gray-600 text-base">Don't have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
+            <Text className="text-primary text-base font-bold">Sign up</Text>
+          </TouchableOpacity>
+        </View>
+        
       </KeyboardAvoidingView>
-    </View>
+    </SafeAreaView>
   );
 }

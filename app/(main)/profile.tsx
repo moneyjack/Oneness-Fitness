@@ -18,7 +18,7 @@ export default function ProfileScreenWrapper() {
   return (
     <View style={{ flex: 1, padding: 20, justifyContent: 'center' }}>
       <Text className="text-xl font-bold mb-4">會員中心</Text>
-      <Text className="mb-4">你好，{user.name}</Text>
+      <Text className="mb-4">你好，{user.user_metadata?.full_name}</Text>
       
       <TouchableOpacity 
         onPress={signOut} 
