@@ -18,7 +18,7 @@ export default function CustomTabLayout() {
     { name: 'videos', label: 'VIDEOS', icon: 'play-box-multiple-outline' },
     { name: 'collections', label: 'COLLECTIONS', icon: 'collage' },
     { name: 'search', label: 'SEARCH', icon: 'magnify' },
-    { name: 'calendar', label: 'CALENDAR', icon: 'calendar-range' },
+    { name: 'inventory', label: 'INVENTORY', icon: 'store' },
     { name: 'profile', label: 'PROFILE', icon: 'account' },
   ];
 

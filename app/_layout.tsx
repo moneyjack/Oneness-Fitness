@@ -2,6 +2,7 @@ import { Slot, useRouter, useSegments } from 'expo-router';
 import { useEffect } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 import { AuthProvider, useAuth } from '../context/auth';
+import { CartProvider } from '../context/cart'; // 引入 CartProvider
 import '../global.css'; // 確保你的 global.css 有引入
 
 // 這是負責監聽路由變化的組件
@@ -41,7 +42,9 @@ function InitialLayout() {
 export default function RootLayout() {
   return (
     <AuthProvider>
+      <CartProvider>
       <InitialLayout />
+      </CartProvider>
     </AuthProvider>
   );
 }
