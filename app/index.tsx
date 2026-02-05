@@ -32,7 +32,7 @@ const IndexPage: FC = () => {
     );
   }
 
-  return <Redirect href="/(main)/videos" />; 
+  return <Redirect href="/(main)/home" />; 
 };
 
 export default IndexPage;

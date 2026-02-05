@@ -20,7 +20,7 @@ function InitialLayout() {
     if (session && inAuthGroup) {
       // 情況 A：已登入，但使用者還停留在 (auth) 群組 (登入/註冊頁)
       // -> 把他踢進首頁
-      router.replace('/(main)/videos');
+      router.replace('/(main)/home');
       
     } 
   }, [session, loading, segments]);

@@ -1,41 +1,32 @@
+// app/(auth)/sign-in.tsx
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Switch, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { Icon } from 'react-native-paper';
-import { useRouter } from 'expo-router'; // 1. 引入 Router
-import { useAuth } from '../../context/auth'; // 2. 引入 Auth Context (假設路徑正確)
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
+import { useAuth } from '../../context/auth';
+import ScreenWrapper from '../../components/ScreenWrapper'; // ✅ 引入背景
+import "../../global.css";
+
 export default function SignInScreen() {
   const router = useRouter();
-  const { signIn } = useAuth(); // 使用全域登入方法
+  const { signIn } = useAuth();
 
-  const [showPassword, setShowPassword] = useState<boolean>(false);
-  const [email, setEmail] = useState<string>(''); 
-  const [password, setPassword] = useState<string>(''); 
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState(''); 
+  const [password, setPassword] = useState(''); 
   const [loading, setLoading] = useState(false);
 
-  // 判斷表單是否填寫完整
   const isFormValid = email.length > 0 && password.length > 0;
-
-  // 在 sign-in.tsx 裡...
 
   const handleSignIn = async () => {
     setLoading(true);
     try {
-      // 修改這裡：傳入 email 和 password
       const { error } = await signIn(email, password);
-      
       if (error) {
-        // 如果 Supabase 回傳錯誤 (例如密碼錯誤)
         Alert.alert('Login Failed', error.message);
       } else {
-        // 登入成功
-        // 注意：因為 AuthContext 裡有監聽器，狀態會自動更新，
-        // 這裡只要負責跳轉頁面就好
-        if (router.canGoBack()) {
-          router.back();
-        } else {
-          router.replace('/(main)/videos');
-        }
+        if (router.canGoBack()) router.back();
+        else router.replace('/(main)/home');
       }
     } catch (error) {
       Alert.alert('Error', 'An unexpected error occurred');
@@ -44,92 +35,97 @@ export default function SignInScreen() {
     }
   };
 
-  const handleClose = () => {
-    // 3. 處理關閉邏輯：回到上一頁
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      // 如果沒有上一頁 (例如直接開啟 App 就在這)，則導向首頁
-      router.replace('/(main)/videos');
-    }
-  };
-
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* 頂部 App Bar - 'X' 關閉按鈕 */}
-      <View className="flex-row justify-end items-center px-4 py-4 border-b border-gray-100">
-        
-        <TouchableOpacity onPress={handleClose} className="p-2">
-          <Icon source="close" size={28} color="#333" /> 
-        </TouchableOpacity>
-      </View>
-
+    // ✅ 使用 ScreenWrapper 包裹，withHeader={false} 讓我們自己控制排版
+    <ScreenWrapper withHeader={false}>
       <KeyboardAvoidingView 
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 px-6 pt-4" 
+        className="flex-1 px-6 justify-center"
       >
+        {/* Close Button */}
+        <TouchableOpacity 
+          onPress={() => router.canGoBack() ? router.back() : router.replace('/(main)/home')} 
+          className="absolute top-4 right-4 z-10 bg-white/10 p-2 rounded-full"
+        >
+          <Icon source="close" size={24} color="#FFF" /> 
+        </TouchableOpacity>
+
         {/* 標題 */}
-        <Text className="text-3xl font-bold text-gray-800 mb-10 mt-2">Sign in</Text>
-
-        {/* 電子郵件輸入框 */}
-        <TextInput
-          className="border-b border-gray-300 py-3 text-lg text-gray-800 mb-6"
-          placeholder="Email"
-          placeholderTextColor="#9CA3AF"
-          keyboardType="email-address"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-        />
-
-        {/* 密碼輸入框 */}
-        <TextInput
-          className="border-b border-gray-300 py-3 text-lg text-gray-800 mb-8" 
-          placeholder="Password"
-          placeholderTextColor="#9CA3AF"
-          secureTextEntry={!showPassword}
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        {/* 顯示密碼切換 */}
-        <View className="flex-row items-center justify-between mb-10">
-          <Text className="text-gray-600 text-base">show password</Text>
-          <Switch
-            trackColor={{ false: "#E0E0E0", true: "#4DC6B9" }} 
-            thumbColor="#FFFFFF"
-            ios_backgroundColor="#E0E0E0"
-            onValueChange={setShowPassword}
-            value={showPassword}
-          />
+        <View className="mb-10 items-center">
+          <Icon source="rocket-launch-outline" size={60} color="#4DC6B9" />
+          <Text className="text-4xl font-bold text-white mt-4 tracking-wider">Welcome Back</Text>
+          <Text className="text-gray-400 mt-2">Sign in to continue your journey</Text>
         </View>
 
-        {/* 繼續按鈕 */}
-        <TouchableOpacity 
-          onPress={handleSignIn}
-          disabled={!isFormValid || loading}
-          className={`py-4 rounded-lg ${
-            isFormValid ? 'bg-primary' : 'bg-gray-300' 
-          }`}
-        >
-          <Text className="text-white text-lg font-bold text-center">
-            {loading ? 'Signing in...' : 'Continue'}
-          </Text>
-        </TouchableOpacity>
-        
-        {/* 重設密碼 */}
-        <TouchableOpacity className="mt-6 self-center">
-          <Text className="text-primary text-base font-semibold">Reset password</Text>
-        </TouchableOpacity>
-        {/* 新增：去註冊頁面的連結 */}
-        <View className="flex-row justify-center mt-8">
-          <Text className="text-gray-600 text-base">Don't have an account? </Text>
-          <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
-            <Text className="text-primary text-base font-bold">Sign up</Text>
+        {/* Form Container (玻璃質感) */}
+        <View className="bg-white/10 p-6 rounded-3xl border border-white/20 backdrop-blur-md">
+          
+          {/* Email */}
+          <View className="mb-6">
+            <Text className="text-gray-300 mb-2 text-sm font-bold uppercase tracking-wider">Email</Text>
+            <TextInput
+              className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-lg"
+              placeholder="user@example.com"
+              placeholderTextColor="#666"
+              keyboardType="email-address"
+              autoCapitalize="none"
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+
+          {/* Password */}
+          <View className="mb-6">
+            <Text className="text-gray-300 mb-2 text-sm font-bold uppercase tracking-wider">Password</Text>
+            <TextInput
+              className="bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white text-lg"
+              placeholder="••••••••"
+              placeholderTextColor="#666"
+              secureTextEntry={!showPassword}
+              value={password}
+              onChangeText={setPassword}
+            />
+          </View>
+
+          {/* Toggle Password */}
+          <View className="flex-row items-center justify-between mb-8">
+            <Text className="text-gray-400 text-sm">Show Password</Text>
+            <Switch
+              trackColor={{ false: "#555", true: "#4DC6B9" }} 
+              thumbColor="#FFF"
+              ios_backgroundColor="#555"
+              onValueChange={setShowPassword}
+              value={showPassword}
+            />
+          </View>
+
+          {/* Button */}
+          <TouchableOpacity 
+            onPress={handleSignIn}
+            disabled={!isFormValid || loading}
+            className={`py-4 rounded-xl shadow-lg flex-row justify-center items-center ${
+              isFormValid ? 'bg-primary' : 'bg-gray-600 opacity-50' 
+            }`}
+          >
+            {loading && <View className="mr-2"><Icon source="loading" size={18} color="#000"/></View>}
+            <Text className="text-black text-lg font-bold tracking-widest">
+              {loading ? 'WARPING IN...' : 'SIGN IN'}
+            </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Footer Actions */}
+        <View className="mt-8 flex-row justify-between items-center px-2">
+            <TouchableOpacity onPress={() => console.log('Reset Password')}>
+               <Text className="text-gray-400 text-sm">Forgot Password?</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => router.push('/(auth)/sign-up')}>
+               <Text className="text-primary font-bold text-sm">Create Account</Text>
+            </TouchableOpacity>
         </View>
         
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ScreenWrapper>
   );
 }
