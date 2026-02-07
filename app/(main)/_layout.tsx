@@ -8,6 +8,7 @@ import { LinearGradient } from 'expo-linear-gradient'; // 1. 引入漸層套件
 import { useAuth } from '../../context/auth';
 import { useCart } from '../../context/cart';
 import '../../i18n';
+import { userApi } from '../../services/api'; // 引入 API
 import { useTranslation } from 'react-i18next'
 import "../../global.css";
 
@@ -26,8 +27,15 @@ export default function CustomTabLayout() {
     { name: 'shop', i18nKey: 'menu.shop', icon: 'shopping-outline' },
     { name: 'profile', i18nKey: 'menu.profile', icon: 'account-circle-outline' },
   ];
-  const toggleLanguage = () => {
+  const toggleLanguage = async () => {
+    // 1. 決定下一個語言
     const nextLang = i18n.language === 'en' ? 'zh' : 'en';
+    
+    // 2. 通知後端 (這一步是新增的)
+    // 注意：我們不需要等它跑完才切換 UI，可以讓它在背景跑
+    userApi.setUserLanguage(nextLang);
+    
+    // 3. 切換前端 UI
     i18n.changeLanguage(nextLang);
   };
   const handleNavigation = (route: string) => {

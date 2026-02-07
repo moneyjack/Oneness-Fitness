@@ -9,7 +9,7 @@ import "../../global.css";
 
 export default function SignUpScreen() {
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signUp, signInWithGoogle } = useAuth();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -88,6 +88,21 @@ export default function SignUpScreen() {
              <Text className="text-black text-lg font-bold tracking-widest">
                {loading ? 'CREATING...' : 'SIGN UP'}
              </Text>
+          </TouchableOpacity>
+          <View className="flex-row items-center my-6">
+            <View className="flex-1 h-[1px] bg-white/10" />
+            <Text className="mx-4 text-white/30 text-xs uppercase tracking-widest">Or continue with</Text>
+            <View className="flex-1 h-[1px] bg-white/10" />
+          </View>
+
+          {/* 🌟 新增：Google 登入按鈕 (玻璃質感) */}
+          <TouchableOpacity 
+            onPress={() => signInWithGoogle()}
+            className="flex-row items-center justify-center bg-white/5 border border-white/10 p-4 rounded-xl active:bg-white/10"
+          >
+            {/* 這裡用 Google 的 icon，如果沒有圖，可以用 Icon 'google' */}
+            <Icon source="google" size={20} color="#FFF" /> 
+            <Text className="text-white font-bold ml-3 tracking-wide">Google</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

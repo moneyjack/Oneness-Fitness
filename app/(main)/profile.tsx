@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/auth';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { useTranslation } from 'react-i18next'; // 引入
+import { userApi } from '../../services/api';
 import "../../global.css";
 
 export default function ProfileScreen() {
@@ -14,8 +15,13 @@ export default function ProfileScreen() {
   const serifFont = Platform.OS === 'ios' ? 'Georgia' : 'serif';
 
   // 切換語言的函數
-  const toggleLanguage = () => {
+  const toggleLanguage = async () => {
     const nextLang = i18n.language === 'en' ? 'zh' : 'en';
+    
+    // 通知後端更新設定
+    await userApi.setUserLanguage(nextLang);
+    
+    // 更新前端
     i18n.changeLanguage(nextLang);
   };
 
