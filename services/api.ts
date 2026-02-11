@@ -101,3 +101,54 @@ export const userApi = {
     // 如果回傳的是陣列，我們會自動取第一個
   }
 };
+
+
+export type GetEventsParams = {
+  page_number?: number;
+  page_size?: number;
+  filter_location_id?: string | null;
+  filter_tags?: string | null;
+  search_query?: string | null;
+  sort_by?: "event_date" | "created_at" | "title_en" | "price_hkd" | "likes_count";
+  sort_order?: "asc" | "desc";
+};
+
+// 🌟 新增：活動相關 API
+export const eventsApi = {
+  // 1. 獲取活動列表 (支援分頁與過濾)
+  getEvents: async (params: GetEventsParams) => {
+    const { data, error } = await supabase.rpc("get_events", params);
+    if (error) {
+      console.error("Error fetching events:", error);
+      return null;
+    }
+    return data;
+  },
+
+  // 2. 獲取單一活動詳情
+  getEventDetail: async (eventId: string) => {
+    const { data, error } = await supabase.rpc("get_event", {
+      event_id: eventId,
+    });
+    if (error) {
+      console.error("Error fetching event detail:", error);
+      return null;
+    }
+    return data;
+  },
+
+   // 🌟 新增：切換按讚狀態
+  toggleEventLike: async (eventId: string) => {
+    const { data, error } = await supabase.rpc("toggle_event_like", {
+      target_event_id: eventId,
+    });
+    
+    if (error) {
+      console.error("❌ Error toggling like:", error);
+      return null;
+    }
+    
+    // Partner 說會 return some data，我們直接回傳給前端去 check
+    return data; 
+  },
+};
