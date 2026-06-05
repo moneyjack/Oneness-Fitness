@@ -9,7 +9,7 @@ import { Video, ResizeMode } from 'expo-av';
 // 1. 引入動畫庫
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
-const SPACE_BG_IMAGE = 'https://btbeugrlydlmtiavsyea.supabase.co/storage/v1/object/public/assets/Gemini_Generated_Image_lug4oflug4oflug4.png';
+const SPACE_BG_IMAGE = 'https://img.freepik.com/free-photo/fantasy-style-galaxy-background_23-2151114273.jpg?semt=ais_hybrid&w=740&q=80';
 
 type Props = {
   children: ReactNode;
