@@ -5,6 +5,7 @@ import { Video, ResizeMode } from 'expo-av';
 import { Icon } from 'react-native-paper';
 import ScreenWrapper from '../../components/ScreenWrapper';
 import { useTranslation } from 'react-i18next';
+import { getSupabasePublicStorageUrl } from '../../lib/supabase';
 import "../../global.css";
 
 // 1. 升級資料結構：加入 videos 陣列
@@ -14,12 +15,11 @@ const GALLERIES = [
     title: 'PHYSIO THERAPY', 
     image: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=2120&auto=format&fit=crop', // 物理治療/瑜伽風格封面
     videos: [
-      // ⚠️ 把這裡的網址換成你從 Supabase 取得的 URL
-      { id: 'v1', title: 'Neck & Shoulder Relief', url: 'https://mvqlkkuxctfyifqrhqwk.supabase.co/storage/v1/object/public/videos/physio1.MP4' }, 
-      { id: 'v2', title: 'Lower Back Stretching', url: 'https://mvqlkkuxctfyifqrhqwk.supabase.co/storage/v1/object/public/videos/physio2.MP4' },
-     { id: 'v3', title: 'Upper Back Stretching', url: 'https://mvqlkkuxctfyifqrhqwk.supabase.co/storage/v1/object/public/videos/physio3.MP4' },
-     { id: 'v4', title: 'Hip Flexor Stretch', url: 'https://mvqlkkuxctfyifqrhqwk.supabase.co/storage/v1/object/public/videos/physio4.MP4' },
-     { id: 'v5', title: 'Hamstring Stretch', url: 'https://mvqlkkuxctfyifqrhqwk.supabase.co/storage/v1/object/public/videos/physio5.MP4' },
+      { id: 'v1', title: 'Neck & Shoulder Relief', url: getSupabasePublicStorageUrl('videos', 'physio1.MP4') },
+      { id: 'v2', title: 'Lower Back Stretching', url: getSupabasePublicStorageUrl('videos', 'physio2.MP4') },
+      { id: 'v3', title: 'Upper Back Stretching', url: getSupabasePublicStorageUrl('videos', 'physio3.MP4') },
+      { id: 'v4', title: 'Hip Flexor Stretch', url: getSupabasePublicStorageUrl('videos', 'physio4.MP4') },
+      { id: 'v5', title: 'Hamstring Stretch', url: getSupabasePublicStorageUrl('videos', 'physio5.MP4') },
     ]
   },
   { 
